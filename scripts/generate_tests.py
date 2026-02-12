@@ -75,20 +75,21 @@ def main():
                 continue
 
             print(f"Generating tests for function: {func['name']} in {file_path}")
-            gen_test = generate_tests_for_functions(func)
-            all_tests.append(gen_test)
-    
-    for test_path in changed_files:
-        if test_path.endswith(".py") and test_path.startswith('tests/'):
-            print(f"Appending generated tests to: {test_path}")
-            
-            with open(test_path, 'a', encoding='utf-8') as t:
-                t.write("\n\n")
-                for test_code in all_tests:
-                    t.write(test_code)
-                    t.write("\n\n")
+            tests = generate_tests_for_functions(func)
+            all_tests.append(f"# Tests for {func['name']} from {file_path}\n{tests}")
 
-    print("Test generation complete.")
+        if all_tests:
+            os.makedirs('tests', exist_ok=True)
+            test_file = 'tests/test_generated.py'
 
-if __name__ == "__main__":
+            with open(test_file, 'w') as f:
+                f.write("import pytest\n\n")
+                f.write("\n\n".join(all_tests))
+
+            print(f"Generated tests written to: {test_file}")
+        else:
+            print("No functions found to generate tests for")
+
+
+if __name__ == '__main__':
     main()
