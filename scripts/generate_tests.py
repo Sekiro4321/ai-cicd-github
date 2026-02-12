@@ -17,12 +17,13 @@ def extract_functions(file_path):
             args = [arg.arg for arg in node.args.args]
             docstring = ast.get_docstring(node) or ""
             source_code = ast.get_source_segment(source, node)
-        functions.append({
-            'name': func_name,
-            'args': args,
-            'docstring': docstring,
-            'source_code': source_code
-        })
+
+            functions.append({
+                'name': func_name,
+                'args': args,
+                'docstring': docstring,
+                'source_code': source_code
+            })
     return functions
 
 def generate_tests_for_functions(func_info):
