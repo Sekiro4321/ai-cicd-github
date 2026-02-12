@@ -12,7 +12,6 @@ def extract_functions(file_path):
     functions = []
 
     for node in ast.walk(tree):
-
         if isinstance(node, ast.FunctionDef): 
             func_name = node.name
             args = [arg.arg for arg in node.args.args]
