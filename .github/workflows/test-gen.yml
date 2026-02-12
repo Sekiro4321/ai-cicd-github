@@ -35,9 +35,14 @@ jobs:
         id: changed-files
         run: |
           git fetch origin ${{ github.base_ref }}
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep '\.py$' | grep -v '^tests/')
-          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
 
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD \
+            | grep '\.py$' \
+            | grep -v '^tests/' || true)
+
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Run test generation script
         if: steps.changed-files.outputs.files != ''
         env:
