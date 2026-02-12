@@ -1,0 +1,62 @@
+name: Auto Test Generation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "**.py"
+      - "!tests/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt || true
+
+      - name: Get changed Python files
+        id: changed-files
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep '\.py$' | grep -v '^tests/')
+          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+      - name: Run test generation script
+        if: steps.changed-files.outputs.files != ''
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python your_script.py ${{ steps.changed-files.outputs.files }}
+
+      - name: Commit and push generated tests
+        if: steps.changed-files.outputs.files != ''
+        run: |
+          # Configure bot identity
+          git config user.name "github-actions[bot]"
+
+          # Check if tests folder actually changed
+          if git diff --quiet tests/; then
+            echo "No changes in tests/, skipping commit."
+            exit 0
+          fi
+
+          git add tests/
+          git commit -m "Auto-generate tests for updated Python files [skip ci]"
+          git push
