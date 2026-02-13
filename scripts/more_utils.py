@@ -1,4 +1,4 @@
-def is_palindrome(text):
+def is_palin(text):
     """Check if a string is a palindrome."""
     cleaned = text.lower().replace(" ", "")
     return cleaned == cleaned[::-1]
