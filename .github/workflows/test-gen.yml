@@ -57,8 +57,3 @@ jobs:
           git add tests/
           git commit -m "Auto-generate tests for new code [skip ci]"
           git push
-
-
-          git add tests/
-          git commit -m "Auto-generate tests for updated Python files [skip ci]"
-          git push
